@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const instance = axios.create({
-  baseURL: "http://localhost:5000/",
+  baseURL: import.meta.env.VITE_API_URL,
   headers: {
     "Content-Type": "application/json",
   },
@@ -10,8 +10,11 @@ const instance = axios.create({
 instance.interceptors.request.use((config) => {
   const token = localStorage.getItem("token");
 
-  // ⚠️ Do NOT attach token on login/register
-  if (token && !config.url.includes("/auth/login") && !config.url.includes("/auth/register")) {
+  if (
+    token &&
+    !config.url.includes("/auth/login") &&
+    !config.url.includes("/auth/register")
+  ) {
     config.headers.Authorization = `Bearer ${token}`;
   }
 

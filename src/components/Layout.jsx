@@ -34,14 +34,14 @@ export default function Layout({ children }) {
             </Link>
 
             <Link
-              to="/matches"
+              to="/marketplace"
               className={`block ${
-                location.pathname === "/matches"
+                location.pathname === "/marketplace"
                   ? "text-blue-400"
                   : "hover:text-blue-400"
               }`}
             >
-              Matches
+              Marketplace
             </Link>
 
             <Link

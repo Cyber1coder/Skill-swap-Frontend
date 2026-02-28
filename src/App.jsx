@@ -6,7 +6,7 @@ import Landing from "./pages/Landing";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Dashboard from "./pages/Dashboard";
-import Matches from "./pages/MarketPlace";
+import Marketplace from "./pages/MarketPlace";
 import Sessions from "./pages/Sessions";
 import Profile from "./pages/Profile";
 import CreateSkill from "./pages/CreateSkill";

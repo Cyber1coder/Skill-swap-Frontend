@@ -17,9 +17,9 @@ export default function Sidebar() {
           Dashboard
         </NavLink>
 
-        <NavLink to="/matches" className={linkClass}>
+        <NavLink to="/marketplace" className={linkClass}>
           <Users size={20} />
-          Matches
+          marketplace
         </NavLink>
 
         <NavLink to="/sessions" className={linkClass}>
