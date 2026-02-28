@@ -8,8 +8,15 @@ export const AuthProvider = ({ children }) => {
 
   useEffect(() => {
     const storedUser = localStorage.getItem("user");
-    if (storedUser) {
-      setUser(JSON.parse(storedUser));
+
+    if (storedUser && storedUser !== "undefined") {
+      try {
+        const parsedUser = JSON.parse(storedUser);
+        setUser(parsedUser);
+      } catch (error) {
+        console.error("Invalid user in localStorage");
+        localStorage.removeItem("user");
+      }
     }
   }, []);
 
@@ -18,6 +25,10 @@ export const AuthProvider = ({ children }) => {
       email,
       password
     });
+
+    if (!res.data?.user || !res.data?.token) {
+      throw new Error("Invalid login response");
+    }
 
     const { user, token } = res.data;
 

@@ -19,19 +19,38 @@ export default function Marketplace() {
   }, []);
 
   const requestSession = async (card) => {
-    try {
-      await axios.post("/sessions", {
-        partner_id: card.user_id,
-        skill_topic: card.skill_title,
-        session_date: new Date().toISOString(),
-        duration_minutes: 60
-      });
+  try {
+    const session_date = prompt("Enter session date (YYYY-MM-DD HH:MM)");
+    const duration_minutes = prompt("Enter duration in minutes:");
+    const mode = prompt("Mode? (virtual / in-person)");
 
-      alert("Session request sent!");
-    } catch (err) {
-      console.error(err);
+    let meeting_link = null;
+    let location = null;
+
+    if (mode === "virtual") {
+      meeting_link = prompt("Enter meeting link:");
     }
-  };
+
+    if (mode === "in-person") {
+      location = prompt("Enter location:");
+    }
+
+    await axios.post("/sessions", {
+      partner_id: card.user_id,
+      skill_topic: card.skill_title,
+      session_date,
+      duration_minutes: Number(duration_minutes),
+      session_type: "one-on-one",
+      mode,
+      meeting_link,
+      location
+    });
+
+    alert("Session scheduled successfully!");
+  } catch (err) {
+    console.error(err);
+  }
+};
 
   return (
     <Layout>
