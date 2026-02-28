@@ -41,6 +41,29 @@ export default function Sessions() {
     }
   };
 
+  const leaveRating = async (session) => {
+    const rating = prompt("Rate from 1 to 5:");
+    const feedback = prompt("Leave feedback:");
+
+    if (!rating) return;
+
+    try {
+      await axios.post("/ratings", {
+        session_id: session.id,
+        reviewee_id:
+          session.requester_id === user.id
+            ? session.partner_id
+            : session.requester_id,
+        rating: Number(rating),
+        feedback
+      });
+
+      alert("Rating submitted successfully!");
+    } catch (err) {
+      alert(err.response?.data?.message || "Error submitting rating");
+    }
+  };
+
   return (
     <Layout>
       <h2 className="text-2xl font-bold mb-6">Sessions</h2>
@@ -132,6 +155,16 @@ export default function Sessions() {
                     className="bg-blue-600 px-3 py-1 rounded"
                   >
                     Mark Completed
+                  </button>
+                )}
+
+                {/* Leave Rating */}
+                {s.status === "completed" && (
+                  <button
+                    onClick={() => leaveRating(s)}
+                    className="bg-purple-600 px-3 py-1 rounded"
+                  >
+                    Leave Rating
                   </button>
                 )}
 
