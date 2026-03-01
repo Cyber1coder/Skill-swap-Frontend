@@ -58,7 +58,7 @@ export default function Sessions() {
         feedback
       });
 
-      alert("Rating submitted successfully!");
+      fetchSessions();
     } catch (err) {
       alert(err.response?.data?.message || "Error submitting rating");
     }
@@ -76,10 +76,6 @@ export default function Sessions() {
 
       {!loading &&
         sessions.map((s) => {
-          const now = new Date();
-          const sessionTime = new Date(s.session_date);
-          const diffMinutes = (sessionTime - now) / (1000 * 60);
-
           const isPartner =
             String(s.partner_id) === String(user?.id);
 
@@ -89,45 +85,25 @@ export default function Sessions() {
           return (
             <div key={s.id} className="bg-slate-800 p-4 mb-4 rounded">
               <p><strong>Skill:</strong> {s.skill_topic}</p>
-              <p><strong>Date:</strong> {sessionTime.toLocaleString()}</p>
-              <p><strong>Duration:</strong> {s.duration_minutes} mins</p>
-              <p><strong>Mode:</strong> {s.mode}</p>
+              <p><strong>Date:</strong> {new Date(s.session_date).toLocaleString()}</p>
+              <p><strong>Status:</strong> {s.status}</p>
 
-              {s.mode === "virtual" && s.meeting_link && (
-                <p>
-                  <strong>Meeting Link:</strong>{" "}
-                  <a
-                    href={s.meeting_link}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-blue-400 underline"
-                  >
-                    Join
-                  </a>
-                </p>
-              )}
-
-              {s.mode === "in-person" && s.location && (
-                <p><strong>Location:</strong> {s.location}</p>
-              )}
-
-              <p>
-                <strong>Status:</strong>{" "}
-                <span className="capitalize">{s.status}</span>
-              </p>
-
-              {/* Reminder Indicator */}
-              {s.status === "accepted" &&
-                diffMinutes <= 15 &&
-                diffMinutes > 0 && (
-                  <p className="text-yellow-400 font-semibold mt-2">
-                    🔔 Session starting soon!
+              {/* Show Rating */}
+              {s.ratings && s.ratings.length > 0 && (
+                <div className="mt-3 bg-slate-700 p-3 rounded">
+                  <p className="font-semibold text-yellow-400">
+                    ⭐ Rating: {s.ratings[0].rating} / 5
                   </p>
-                )}
+                  {s.ratings[0].feedback && (
+                    <p className="text-gray-300 mt-1">
+                      "{s.ratings[0].feedback}"
+                    </p>
+                  )}
+                </div>
+              )}
 
               <div className="flex gap-3 mt-3 flex-wrap">
 
-                {/* Accept / Reject */}
                 {s.status === "pending" && isPartner && (
                   <>
                     <button
@@ -146,7 +122,6 @@ export default function Sessions() {
                   </>
                 )}
 
-                {/* Cancel */}
                 {s.status === "pending" && isRequester && (
                   <button
                     onClick={() => updateStatus(s.id, "cancelled")}
@@ -156,7 +131,6 @@ export default function Sessions() {
                   </button>
                 )}
 
-                {/* Mark Completed */}
                 {s.status === "accepted" && (
                   <button
                     onClick={() => updateStatus(s.id, "completed")}
@@ -166,17 +140,16 @@ export default function Sessions() {
                   </button>
                 )}
 
-                {/* Leave Rating */}
-                {s.status === "completed" && (
-                  <button
-                    onClick={() => leaveRating(s)}
-                    className="bg-purple-600 px-3 py-1 rounded"
-                  >
-                    Leave Rating
-                  </button>
-                )}
+                {s.status === "completed" &&
+                  (!s.ratings || s.ratings.length === 0) && (
+                    <button
+                      onClick={() => leaveRating(s)}
+                      className="bg-purple-600 px-3 py-1 rounded"
+                    >
+                      Leave Rating
+                    </button>
+                  )}
 
-                {/* Delete */}
                 <button
                   onClick={() => deleteSession(s.id)}
                   className="bg-gray-600 px-3 py-1 rounded"
