@@ -17,6 +17,7 @@ function App() {
     <AuthProvider>
       <BrowserRouter>
         <Routes>
+
           <Route path="/" element={<Landing />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
@@ -29,23 +30,24 @@ function App() {
               </ProtectedRoute>
             }
           />
-<Route
-  path="/marketplace"
-  element={
-    <ProtectedRoute>
-      <Marketplace />
-    </ProtectedRoute>
-  }
-/>
 
-<Route
-  path="/create-skill"
-  element={
-    <ProtectedRoute>
-      <CreateSkill />
-    </ProtectedRoute>
-  }
-/>
+          <Route
+            path="/marketplace"
+            element={
+              <ProtectedRoute>
+                <Marketplace />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/create-skill"
+            element={
+              <ProtectedRoute>
+                <CreateSkill />
+              </ProtectedRoute>
+            }
+          />
 
           <Route
             path="/sessions"
@@ -64,9 +66,10 @@ function App() {
               </ProtectedRoute>
             }
           />
-        </Routes>
 
-        <Route path="/forum" element={<Forum />} />
+          <Route path="/forum" element={<Forum />} />
+
+        </Routes>
       </BrowserRouter>
     </AuthProvider>
   );
