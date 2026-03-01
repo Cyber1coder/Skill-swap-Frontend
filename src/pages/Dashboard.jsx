@@ -41,9 +41,7 @@ export default function Dashboard() {
     return (
       <Layout>
         <div className="flex justify-center items-center h-64">
-          <div className="animate-pulse text-xl opacity-70">
-            Loading Dashboard...
-          </div>
+          <div className="loading-shimmer w-48 h-6 rounded-md"></div>
         </div>
       </Layout>
     );
@@ -51,58 +49,94 @@ export default function Dashboard() {
 
   return (
     <Layout>
-      <div className="animate-fadeInUp">
-        <h2 className="text-3xl font-bold mb-8 tracking-tight">
-          Dashboard Overview
-        </h2>
+      <div className="dashboard-bg min-h-screen p-6 relative overflow-hidden">
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          
-          {/* Card 1 */}
-          <div className="bg-slate-800 p-6 rounded-xl shadow-lg 
-                          transition-all duration-300 
-                          hover:-translate-y-2 hover:shadow-2xl 
-                          hover:bg-slate-700">
-            <h3 className="text-lg opacity-60">Marketplace Cards</h3>
-            <p className="text-3xl font-bold mt-3">
-              {stats?.totalMatches || 0}
-            </p>
+        <FloatingBlobs />
+
+        <div className="relative z-10 animate-fadeInUp">
+          <h2 className="text-3xl font-bold mb-10 tracking-tight">
+            Dashboard Overview
+          </h2>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-10">
+
+            <AnimatedCard delay="0">
+              <h3 className="text-lg opacity-60">Marketplace Cards</h3>
+              <CountUp value={stats?.totalMatches || 0} />
+            </AnimatedCard>
+
+            <AnimatedCard delay="200">
+              <h3 className="text-lg opacity-60">Total Sessions</h3>
+              <CountUp value={stats?.totalSessions || 0} />
+            </AnimatedCard>
+
+            <AnimatedCard delay="400">
+              <h3 className="text-lg opacity-60">Completed Sessions</h3>
+              <CountUp value={stats?.completedSessions || 0} />
+            </AnimatedCard>
+
           </div>
 
-          {/* Card 2 */}
-          <div className="bg-slate-800 p-6 rounded-xl shadow-lg 
-                          transition-all duration-300 
-                          hover:-translate-y-2 hover:shadow-2xl 
-                          hover:bg-slate-700">
-            <h3 className="text-lg opacity-60">Total Sessions</h3>
-            <p className="text-3xl font-bold mt-3">
-              {stats?.totalSessions || 0}
-            </p>
-          </div>
-
-          {/* Card 3 */}
-          <div className="bg-slate-800 p-6 rounded-xl shadow-lg 
-                          transition-all duration-300 
-                          hover:-translate-y-2 hover:shadow-2xl 
-                          hover:bg-slate-700">
-            <h3 className="text-lg opacity-60">Completed Sessions</h3>
-            <p className="text-3xl font-bold mt-3">
-              {stats?.completedSessions || 0}
-            </p>
-          </div>
-
+          <button
+            onClick={() => navigate("/create-skill")}
+            className="premium-btn"
+          >
+            Create Skill Card
+          </button>
         </div>
 
-        <button
-          onClick={() => navigate("/create-skill")}
-          className="bg-blue-600 px-6 py-2 rounded-lg font-medium
-                     transition-all duration-300
-                     hover:bg-blue-700 hover:-translate-y-1
-                     active:scale-95 shadow-md hover:shadow-xl"
-        >
-          Create Skill Card
-        </button>
       </div>
     </Layout>
+  );
+}
+
+/* ---------- Animated Card ---------- */
+
+function AnimatedCard({ children, delay }) {
+  return (
+    <div
+      style={{ animationDelay: `${delay}ms` }}
+      className="glass-card opacity-0 animate-cardEnter"
+    >
+      {children}
+    </div>
+  );
+}
+
+/* ---------- Count Up ---------- */
+
+function CountUp({ value }) {
+  const [count, setCount] = useState(0);
+
+  useEffect(() => {
+    let start = 0;
+    const duration = 1000;
+    const increment = value / (duration / 16);
+
+    const counter = setInterval(() => {
+      start += increment;
+      if (start >= value) {
+        setCount(value);
+        clearInterval(counter);
+      } else {
+        setCount(Math.floor(start));
+      }
+    }, 16);
+
+    return () => clearInterval(counter);
+  }, [value]);
+
+  return <p className="text-4xl font-bold mt-4">{count}</p>;
+}
+
+/* ---------- Floating Background ---------- */
+
+function FloatingBlobs() {
+  return (
+    <>
+      <div className="blob blob1"></div>
+      <div className="blob blob2"></div>
+      <div className="blob blob3"></div>
+    </>
   );
 }
