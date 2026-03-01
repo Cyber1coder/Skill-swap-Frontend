@@ -55,6 +55,18 @@ export default function Layout({ children }) {
               Sessions
             </Link>
 
+            {/* 🔥 Community Forum Added */}
+            <Link
+              to="/forum"
+              className={`block ${
+                location.pathname === "/forum"
+                  ? "text-blue-400"
+                  : "hover:text-blue-400"
+              }`}
+            >
+              Community Forum
+            </Link>
+
             <Link
               to="/profile"
               className={`block ${
