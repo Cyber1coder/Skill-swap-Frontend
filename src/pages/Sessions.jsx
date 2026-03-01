@@ -51,7 +51,7 @@ export default function Sessions() {
       await axios.post("/ratings", {
         session_id: session.id,
         reviewee_id:
-          session.requester_id === user.id
+          String(session.requester_id) === String(user?.id)
             ? session.partner_id
             : session.requester_id,
         rating: Number(rating),
@@ -79,6 +79,12 @@ export default function Sessions() {
           const now = new Date();
           const sessionTime = new Date(s.session_date);
           const diffMinutes = (sessionTime - now) / (1000 * 60);
+
+          const isPartner =
+            String(s.partner_id) === String(user?.id);
+
+          const isRequester =
+            String(s.requester_id) === String(user?.id);
 
           return (
             <div key={s.id} className="bg-slate-800 p-4 mb-4 rounded">
@@ -111,16 +117,18 @@ export default function Sessions() {
               </p>
 
               {/* Reminder Indicator */}
-              {s.status === "accepted" && diffMinutes <= 15 && diffMinutes > 0 && (
-                <p className="text-yellow-400 font-semibold mt-2">
-                  🔔 Session starting soon!
-                </p>
-              )}
+              {s.status === "accepted" &&
+                diffMinutes <= 15 &&
+                diffMinutes > 0 && (
+                  <p className="text-yellow-400 font-semibold mt-2">
+                    🔔 Session starting soon!
+                  </p>
+                )}
 
               <div className="flex gap-3 mt-3 flex-wrap">
 
-                {/* Accept / Reject (Partner Only) */}
-                {s.partner_id === user.id && s.status === "pending" && (
+                {/* Accept / Reject */}
+                {s.status === "pending" && isPartner && (
                   <>
                     <button
                       onClick={() => updateStatus(s.id, "accepted")}
@@ -138,8 +146,8 @@ export default function Sessions() {
                   </>
                 )}
 
-                {/* Cancel (Requester Only) */}
-                {s.requester_id === user.id && s.status === "pending" && (
+                {/* Cancel */}
+                {s.status === "pending" && isRequester && (
                   <button
                     onClick={() => updateStatus(s.id, "cancelled")}
                     className="bg-yellow-600 px-3 py-1 rounded"
@@ -148,7 +156,7 @@ export default function Sessions() {
                   </button>
                 )}
 
-                {/* Complete */}
+                {/* Mark Completed */}
                 {s.status === "accepted" && (
                   <button
                     onClick={() => updateStatus(s.id, "completed")}

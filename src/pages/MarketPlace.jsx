@@ -4,6 +4,14 @@ import Layout from "../components/Layout";
 
 export default function Marketplace() {
   const [skills, setSkills] = useState([]);
+  const [selectedCard, setSelectedCard] = useState(null);
+  const [formData, setFormData] = useState({
+    session_date: "",
+    duration_minutes: "",
+    mode: "virtual",
+    meeting_link: "",
+    location: ""
+  });
 
   const fetchSkills = async () => {
     try {
@@ -18,39 +26,47 @@ export default function Marketplace() {
     fetchSkills();
   }, []);
 
-  const requestSession = async (card) => {
-  try {
-    const session_date = prompt("Enter session date (YYYY-MM-DD HH:MM)");
-    const duration_minutes = prompt("Enter duration in minutes:");
-    const mode = prompt("Mode? (virtual / in-person)");
+  const handleSchedule = async () => {
+    try {
+      if (!formData.session_date || !formData.duration_minutes) {
+        alert("Please fill required fields");
+        return;
+      }
 
-    let meeting_link = null;
-    let location = null;
+      const session_date = new Date(formData.session_date).toISOString();
 
-    if (mode === "virtual") {
-      meeting_link = prompt("Enter meeting link:");
+      const res = await axios.post("/sessions", {
+        partner_id: selectedCard.user_id,
+        skill_topic: selectedCard.skill_title,
+        session_date,
+        duration_minutes: Number(formData.duration_minutes),
+        session_type: "one-on-one",
+        mode: formData.mode,
+        meeting_link:
+          formData.mode === "virtual" ? formData.meeting_link : null,
+        location:
+          formData.mode === "in-person" ? formData.location : null
+      });
+
+      console.log("Session created:", res.data);
+
+      alert("Session scheduled successfully!");
+      setSelectedCard(null);
+
+      // Reset form
+      setFormData({
+        session_date: "",
+        duration_minutes: "",
+        mode: "virtual",
+        meeting_link: "",
+        location: ""
+      });
+
+    } catch (err) {
+      console.error("Session error:", err.response?.data || err);
+      alert("Error creating session");
     }
-
-    if (mode === "in-person") {
-      location = prompt("Enter location:");
-    }
-
-    await axios.post("/sessions", {
-      partner_id: card.user_id,
-      skill_topic: card.skill_title,
-      session_date,
-      duration_minutes: Number(duration_minutes),
-      session_type: "one-on-one",
-      mode,
-      meeting_link,
-      location
-    });
-
-    alert("Session scheduled successfully!");
-  } catch (err) {
-    console.error(err);
-  }
-};
+  };
 
   return (
     <Layout>
@@ -67,13 +83,102 @@ export default function Marketplace() {
           <p><strong>Availability:</strong> {card.availability}</p>
 
           <button
-            onClick={() => requestSession(card)}
+            onClick={() => setSelectedCard(card)}
             className="bg-blue-600 px-3 py-1 rounded mt-3"
           >
             Request Session
           </button>
         </div>
       ))}
+
+      {/* MODAL */}
+      {selectedCard && (
+        <div className="fixed inset-0 bg-black bg-opacity-60 flex justify-center items-center">
+          <div className="bg-slate-900 p-6 rounded w-96">
+            <h3 className="text-lg font-bold mb-4">
+              Schedule Session for {selectedCard.skill_title}
+            </h3>
+
+            <input
+              type="datetime-local"
+              className="w-full p-2 mb-3 bg-slate-700 rounded"
+              value={formData.session_date}
+              onChange={(e) =>
+                setFormData({ ...formData, session_date: e.target.value })
+              }
+            />
+
+            <input
+              type="number"
+              placeholder="Duration (minutes)"
+              className="w-full p-2 mb-3 bg-slate-700 rounded"
+              value={formData.duration_minutes}
+              onChange={(e) =>
+                setFormData({
+                  ...formData,
+                  duration_minutes: e.target.value
+                })
+              }
+            />
+
+            <select
+              className="w-full p-2 mb-3 bg-slate-700 rounded"
+              value={formData.mode}
+              onChange={(e) =>
+                setFormData({ ...formData, mode: e.target.value })
+              }
+            >
+              <option value="virtual">Virtual</option>
+              <option value="in-person">In-Person</option>
+            </select>
+
+            {formData.mode === "virtual" && (
+              <input
+                placeholder="Meeting link"
+                className="w-full p-2 mb-3 bg-slate-700 rounded"
+                value={formData.meeting_link}
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    meeting_link: e.target.value
+                  })
+                }
+              />
+            )}
+
+            {formData.mode === "in-person" && (
+              <input
+                placeholder="Location"
+                className="w-full p-2 mb-3 bg-slate-700 rounded"
+                value={formData.location}
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    location: e.target.value
+                  })
+                }
+              />
+            )}
+
+            <div className="flex justify-between mt-4">
+              <button
+                onClick={handleSchedule}
+                className="bg-green-600 px-4 py-2 rounded"
+              >
+                Confirm
+              </button>
+
+              <button
+                onClick={() => setSelectedCard(null)}
+                className="bg-gray-600 px-4 py-2 rounded"
+              >
+                Cancel
+              </button>
+            </div>
+
+          </div>
+        </div>
+      )}
     </Layout>
   );
 }
