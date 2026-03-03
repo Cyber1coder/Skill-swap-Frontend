@@ -65,26 +65,7 @@ export default function Dashboard() {
             </p>
           </div>
 
-          {/* Stats Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-10">
-
-            <AnimatedCard delay="0">
-              <h3 className="text-lg opacity-60">Marketplace Cards</h3>
-              <CountUp value={stats?.totalMatches || 0} />
-            </AnimatedCard>
-
-            <AnimatedCard delay="200">
-              <h3 className="text-lg opacity-60">Total Sessions</h3>
-              <CountUp value={stats?.totalSessions || 0} />
-            </AnimatedCard>
-
-            <AnimatedCard delay="400">
-              <h3 className="text-lg opacity-60">Completed Sessions</h3>
-              <CountUp value={stats?.completedSessions || 0} />
-            </AnimatedCard>
-
-          </div>
-
+        
           <button
             onClick={() => navigate("/create-skill")}
             className="premium-btn"
