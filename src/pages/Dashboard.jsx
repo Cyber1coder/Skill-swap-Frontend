@@ -2,6 +2,13 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "../api/axios";
 import Layout from "../components/Layout";
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  Tooltip,
+  ResponsiveContainer
+} from "recharts";
 
 export default function Dashboard() {
   const [stats, setStats] = useState(null);
@@ -40,6 +47,7 @@ export default function Dashboard() {
   if (loading) {
     return (
       <Layout>
+        console.log("NEW DASHBOARD VERSION");
         <div className="flex justify-center items-center h-64">
           <div className="loading-shimmer w-48 h-6 rounded-md"></div>
         </div>
@@ -54,10 +62,18 @@ export default function Dashboard() {
         <FloatingBlobs />
 
         <div className="relative z-10 animate-fadeInUp">
-          <h2 className="text-3xl font-bold mb-10 tracking-tight">
-            Dashboard Overview
-          </h2>
 
+          {/* Welcome Section */}
+          <div className="mb-10">
+            <h2 className="text-3xl font-bold tracking-tight">
+              Welcome back 👋
+            </h2>
+            <p className="opacity-60 mt-2">
+              Here’s a snapshot of your activity.
+            </p>
+          </div>
+
+          {/* Stats Cards */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-10">
 
             <AnimatedCard delay="0">
@@ -77,16 +93,44 @@ export default function Dashboard() {
 
           </div>
 
+          {/* Chart Section */}
+          <div className="glass-card p-6 mb-10">
+            <h3 className="text-lg mb-6 opacity-70">
+              Session Progress
+            </h3>
+            <SessionChart stats={stats} />
+          </div>
+
+          {/* Action Button */}
           <button
             onClick={() => navigate("/create-skill")}
             className="premium-btn"
           >
             Create Skill Card
           </button>
-        </div>
 
+        </div>
       </div>
     </Layout>
+  );
+}
+
+/* ---------- Chart Component ---------- */
+
+function SessionChart({ stats }) {
+  const data = [
+    { name: "Total", value: stats.totalSessions },
+    { name: "Completed", value: stats.completedSessions }
+  ];
+
+  return (
+    <ResponsiveContainer width="100%" height={250}>
+      <BarChart data={data}>
+        <XAxis dataKey="name" stroke="#9CA3AF" />
+        <Tooltip />
+        <Bar dataKey="value" radius={[6, 6, 0, 0]} />
+      </BarChart>
+    </ResponsiveContainer>
   );
 }
 
@@ -140,3 +184,4 @@ function FloatingBlobs() {
     </>
   );
 }
+
