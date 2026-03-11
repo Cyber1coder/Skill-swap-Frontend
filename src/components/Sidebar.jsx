@@ -1,37 +1,79 @@
 import { NavLink } from "react-router-dom";
-import { LayoutDashboard, Users, Calendar, User } from "lucide-react";
+import {
+  LayoutDashboard,
+  Users,
+  Calendar,
+  User
+} from "lucide-react";
 
-export default function Sidebar() {
-  const linkClass =
-    "flex items-center gap-3 p-3 rounded-lg hover:bg-white/10 transition";
+export default function Sidebar({ open, setOpen }) {
+
+  const navItem = ({ isActive }) =>
+    `flex items-center gap-3 px-4 py-3 rounded-lg transition
+     ${
+       isActive
+         ? "bg-blue-500 text-white"
+         : "text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-800"
+     }`;
 
   return (
-    <div className="w-64 h-screen backdrop-blur-xl bg-white/5 border-r border-white/10 p-6 fixed">
-      <h1 className="text-2xl font-bold text-white mb-10">
-        SkillSwap
-      </h1>
+    <>
+      {/* Mobile Overlay */}
 
-      <nav className="space-y-4 text-white">
-        <NavLink to="/" className={linkClass}>
-          <LayoutDashboard size={20} />
-          Dashboard
-        </NavLink>
+      {open && (
+        <div
+          onClick={() => setOpen(false)}
+          className="fixed inset-0 bg-black/40 z-30 lg:hidden"
+        />
+      )}
 
-        <NavLink to="/marketplace" className={linkClass}>
-          <Users size={20} />
-          marketplace
-        </NavLink>
+      {/* Sidebar */}
 
-        <NavLink to="/sessions" className={linkClass}>
-          <Calendar size={20} />
-          Sessions
-        </NavLink>
+      <aside
+        className={`
+        fixed lg:static z-40
+        w-64 h-screen
+        bg-white dark:bg-slate-900
+        border-r border-gray-200 dark:border-slate-700
+        p-6
+        transform
+        ${open ? "translate-x-0" : "-translate-x-full"}
+        lg:translate-x-0
+        transition-transform duration-300
+        `}
+      >
+        {/* Logo */}
 
-        <NavLink to="/profile" className={linkClass}>
-          <User size={20} />
-          Profile
-        </NavLink>
-      </nav>
-    </div>
+        <h1 className="text-2xl font-bold mb-10 text-gray-800 dark:text-white">
+          SkillSwap
+        </h1>
+
+        {/* Navigation */}
+
+        <nav className="space-y-3">
+
+          <NavLink to="/dashboard" className={navItem}>
+            <LayoutDashboard size={20} />
+            Dashboard
+          </NavLink>
+
+          <NavLink to="/marketplace" className={navItem}>
+            <Users size={20} />
+            Marketplace
+          </NavLink>
+
+          <NavLink to="/sessions" className={navItem}>
+            <Calendar size={20} />
+            Sessions
+          </NavLink>
+
+          <NavLink to="/profile" className={navItem}>
+            <User size={20} />
+            Profile
+          </NavLink>
+
+        </nav>
+      </aside>
+    </>
   );
 }
