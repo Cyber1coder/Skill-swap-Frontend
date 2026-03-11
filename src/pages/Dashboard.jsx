@@ -3,47 +3,39 @@ import { useNavigate } from "react-router-dom";
 import axios from "../api/axios";
 import Layout from "../components/Layout";
 
-/* ================= Dashboard ================= */
-
 export default function Dashboard() {
-  const [stats, setStats] = useState({
-    totalMatches: 0,
-    totalSessions: 0,
-    completedSessions: 0
-  });
-
+  const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
   useEffect(() => {
-    fetchDashboardStats();
-  }, []);
+    const fetchStats = async () => {
+      try {
+        const [skillsRes, sessionsRes] = await Promise.all([
+          axios.get("/skills"),
+          axios.get("/sessions"),
+        ]);
 
-  const fetchDashboardStats = async () => {
-    try {
-      const [skillsRes, sessionsRes] = await Promise.all([
-        axios.get("/skills"),
-        axios.get("/sessions")
-      ]);
-
-      const sessions = sessionsRes.data;
-
-      setStats({
-        totalMatches: skillsRes.data.length,
-        totalSessions: sessions.length,
-        completedSessions: sessions.filter(
+        const totalMatches = skillsRes.data.length;
+        const totalSessions = sessionsRes.data.length;
+        const completedSessions = sessionsRes.data.filter(
           (s) => s.status === "completed"
-        ).length
-      });
+        ).length;
 
-    } catch (error) {
-      console.error("Failed to fetch dashboard stats:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
+        setStats({
+          totalMatches,
+          totalSessions,
+          completedSessions,
+        });
+      } catch (error) {
+        console.error("Dashboard error:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  /* ---------- Loading State ---------- */
+    fetchStats();
+  }, []);
 
   if (loading) {
     return (
@@ -55,57 +47,78 @@ export default function Dashboard() {
     );
   }
 
-  /* ---------- UI ---------- */
-
   return (
     <Layout>
-      <div className="dashboard-bg min-h-screen p-6 relative overflow-hidden">
-
+      <div
+        className="
+        min-h-screen
+        p-4 sm:p-6 lg:p-8
+        relative
+        overflow-hidden
+        bg-gray-50
+        dark:bg-gradient-to-br
+        dark:from-slate-900
+        dark:via-slate-800
+        dark:to-slate-900
+        "
+      >
         <FloatingBlobs />
 
         <div className="relative z-10 animate-fadeInUp">
-
+          
           {/* Welcome Section */}
 
           <div className="mb-10">
-            <h2 className="text-3xl font-bold tracking-tight">
+            <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-gray-900 dark:text-white">
               Welcome back 👋
             </h2>
 
-            <p className="opacity-60 mt-2">
+            <p className="text-gray-600 dark:text-gray-400 mt-2">
               Here's your activity summary for today.
             </p>
           </div>
 
-          {/* Stats */}
+          {/* Stats Cards */}
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-10">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-10">
 
             <StatsCard
               title="Marketplace Cards"
-              value={stats.totalMatches}
-              delay={0}
+              value={stats?.totalMatches || 0}
+              delay="0"
             />
 
             <StatsCard
               title="Total Sessions"
-              value={stats.totalSessions}
-              delay={200}
+              value={stats?.totalSessions || 0}
+              delay="200"
             />
 
             <StatsCard
               title="Completed Sessions"
-              value={stats.completedSessions}
-              delay={400}
+              value={stats?.completedSessions || 0}
+              delay="400"
             />
 
           </div>
 
-          {/* Action */}
+          {/* Create Button */}
 
           <button
             onClick={() => navigate("/create-skill")}
-            className="premium-btn"
+            className="
+            mt-4
+            px-6
+            py-3
+            rounded-lg
+            font-medium
+            text-white
+            bg-blue-500
+            hover:bg-blue-600
+            transition
+            shadow-md
+            w-full sm:w-auto
+            "
           >
             Create Skill Card
           </button>
@@ -116,22 +129,33 @@ export default function Dashboard() {
   );
 }
 
-/* ================= Stats Card ================= */
+/* ---------- Stats Card ---------- */
 
 function StatsCard({ title, value, delay }) {
   return (
     <div
       style={{ animationDelay: `${delay}ms` }}
-      className="glass-card opacity-0 animate-cardEnter"
+      className="
+      opacity-0
+      animate-cardEnter
+      p-6
+      rounded-xl
+      shadow-md
+      bg-white
+      dark:bg-slate-800
+      transition
+      "
     >
-      <h3 className="text-lg opacity-60">{title}</h3>
+      <h3 className="text-gray-600 dark:text-gray-400 text-lg">
+        {title}
+      </h3>
 
       <CountUp value={value} />
     </div>
   );
 }
 
-/* ================= Count Up Animation ================= */
+/* ---------- Count Up Animation ---------- */
 
 function CountUp({ value }) {
   const [count, setCount] = useState(0);
@@ -150,20 +174,19 @@ function CountUp({ value }) {
       } else {
         setCount(Math.floor(start));
       }
-
     }, 16);
 
     return () => clearInterval(counter);
   }, [value]);
 
   return (
-    <p className="text-4xl font-bold mt-4">
+    <p className="text-4xl font-bold mt-4 text-gray-900 dark:text-white">
       {count}
     </p>
   );
 }
 
-/* ================= Floating Background ================= */
+/* ---------- Floating Background ---------- */
 
 function FloatingBlobs() {
   return (
